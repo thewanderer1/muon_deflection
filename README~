@@ -1,0 +1,50 @@
+HOW TO COMPILE:
+
+As of now, there are 8 header files and 8 source files, organized into include and src folders respectively. There is also one file that has the main method,
+called muondeflection.cc. To compile, sort the header files into the include folder and the source files into the src folder. Place both of these folders in a folder called muon_defelction. Now, navigate to the parent directory of muon_deflection and create a folder called muon_deflection_build. Ensure that the file CMakeLists.txt is in the muon_defelction folder. Run:
+
+	$ cmake -DGeant4_DIR=/path_to_geant4_install_with_visualization/lib/Geant4-10.2.1 ../muon_deflection
+
+Once the configure script has sucessfully completed, run the make utility.
+
+HOW TO RUN:
+
+Once the program has sucessfully compiled, you must create an initialization file. 
+
+This is a csv style document. On one line, there should just be the variable name, followed by the value (no space).
+The next variable should be on the next line and so on.
+
+The other variables can be in any order, but must all be before the start of the position variables
+The position variable should have x,y and z coordinates for each one of the modules you want to place.
+The following is an example of what an initialization file would look like. The text in parentheses
+is just comments and should not be included:
+
+stripXYZ,10,1,1       (xyz dimension of a single strip)
+numModules,2          (number of modules above the unknown object. The total number of modules will be 2x this number)
+posXYZ,0,0,0          (position coordinates for each slab)
+posXYZ,0,0,5
+
+The position coordinates should only be for the modules above the unknown (positive Z). The program will mirror these coordinates for the
+modules below (negative Z).
+
+The position should be based on the geant4 coordinate system positions. This means that the exact 3-D center of the module will be located
+at the points you specify.
+
+ALL UNITS ARE IN CENTEMETERS
+
+ENSURE THAT THE LONG DIMENSION FOR THE STRIP IS THE X DIMENSION.
+
+Now run the program using the following command.
+
+	$ ./muondeflection name_of_your_init_file
+
+
+
+Also, ensure that the two macros, init_vis.mac and vis.mac are in the execution folder. They are necessary for visualization.
+
+
+Once the program has started running, switch to the Geant4 console window. Type in the command:
+
+/vis/viewer/set/viewpointThetaPhi 70 20
+
+and hit enter. This will move the camera to a theta angle of 70 degrees and a phi angle of 20 degrees. This command can be used to move the camera to whatever angle is needed.

@@ -1,0 +1,90 @@
+
+As of now, there are 8 header files and 8 source files, organized into include and src folders respectively. There is also one file that has the main method,
+called muondeflection.cc. The file called CMakeLists.txt is in the folder as well, and it is used by CMake to generate the makefile. 
+
+HOW TO COMPILE:
+
+Run:
+
+	$ cd /home/shantam/summer2016research/geant4.10.02-install-qt/bin/
+	$ source geant4.sh
+
+Now run:
+
+	$ cd /home/shantam/summer2016research/
+	$ mkdir muon_deflection_build
+	$ cd muon_deflection_build
+
+Run:
+
+	$ cmake -DGeant4_DIR=/home/shantam/summer2016research/geant4.10.02-install-qt/lib/Geant4-10.2.1 ../muon_deflection
+
+Once the configure script has sucessfully completed, run the make utility:
+
+	$ make -j8
+
+HOW TO RUN:
+
+Once the program has sucessfully compiled, you must create an initialization file. It is recommended that you name your file init.txt. 
+
+This is a csv style document. On every line, there should just be the variable name, followed by the value (no space).
+The next variable should be on the next line and so on.
+
+The following is an example of what an initialization file would look like. The text in parentheses
+are just comments and should not be included:
+
+
+stripXYZ,10,1,1       (xyz dimension of a single strip)
+numModules,2          (number of modules above the unknown object. The total number of modules will be 2x this number)
+posXYZ1,0,0,0          (position coordinates for each slab, in x, y and z. the number of position variables you have 
+posXYZ2,0,0,5			should be equal to numModules)
+
+
+
+The variables can be in any order, but must all appear before the start of the position variables.
+
+ALL UNITS ARE IN CENTEMETERS
+
+ENSURE THAT THE LONGEST DIMENSION FOR THE STRIP IS THE X DIMENSION.
+
+The position coordinates should only be for the modules above the unknown (positive Z). The program will mirror these coordinates for the
+modules below (negative Z).
+
+The position should be based on the geant4 coordinate system positions. This means that the exact 3-D center of the module will be located
+at the points you specify.
+
+
+Now run the program using the following command.
+
+	$ ./muondeflection init.txt
+
+
+
+Also, ensure that the two macros, init_vis.mac and vis.mac are in the build folder. They are necessary for visualization. The program will call these files to run visualization.
+
+
+Once the program has started running, switch to the Geant4 console window. Type in the command:
+
+/vis/viewer/set/viewpointThetaPhi 70 20
+
+and hit enter. This will move the camera to a 3-D polar coordinate theta angle of 70 degrees and a phi angle of 20 degrees. To change to another angle, simply use the same command with the theta and phi values required. 
+
+To begin a run, type in the following command:
+
+/run/beamOn 1
+
+This will run one event, which consists of 1000 muons. This may take up to five minutes to run.
+
+This will generate several output files, but the output file that contains all the hit data is called "runinfo.csv".
+
+This file stores the values of the data members of each hit. The variables are written in the order below:
+
+initalKE,finalKE,currentKE,x,y,z,actualyhitpt[0],actualyhitpt[1],actualyhitpt[2],actualxhitpt[0],actualxhitpt[1],actualxhitpt[2],trackID
+
+The initialKE is the inital kinectic energy of the muon as it enters the top scintillator strip of the module, currentKE is the energy 
+of the muon as it exits the top strip and enters the bottom strip, and finalKE is the KE of the muon as it exits the bottom strip. The x,y and z
+coordinates represent the coordinates of that hit as is needed for track reconstruction. The actualyhitpt and actualxhitpt represent the
+coordinates of the muon as it enters the top strip and as it enters the bottom strip, respectively. These variables' x,y and z coordinates
+are accessed through the [] operator. X is [0], y is [1] and z is [2]. Finally, the trackID is the ID number of the muon whose hit this belongs to.
+
+The file "debug.txt" has useful debug information, but is not necessary for the user.
