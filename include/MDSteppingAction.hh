@@ -21,6 +21,11 @@ public:
 	virtual void UserSteppingAction(const G4Step*);
 
 	static std::vector<HalfHitX> hfx;
+
+private:
+	G4ParticleTable* particleTable;
+	G4String particleName;
+	G4ParticleDefinition* muon;
 };
 
 

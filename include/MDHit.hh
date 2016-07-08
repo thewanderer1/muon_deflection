@@ -17,7 +17,7 @@
 
 class MDHit: public G4VHit {
 public:
-	MDHit(G4double,G4double,G4double,G4int);
+	MDHit(G4double,G4double,G4double,G4int,G4int);
 	virtual ~MDHit();
 
 
@@ -59,6 +59,7 @@ private:
 	G4ThreeVector actualyhitpt;
 	G4ThreeVector actualxhitpt;
 	G4ThreeVector actualexitpoint;
+	G4int eventnum;
 
 //put exact positions in as well
 };

@@ -12,7 +12,7 @@
 #include "globals.hh"
 #include "G4SystemOfUnits.hh"
 
-MDHit::MDHit(G4double xval,G4double yval,G4double zval,G4int tid):x(xval),y(yval),z(zval),trackID(tid),writeAsCSV(true)
+MDHit::MDHit(G4double xval,G4double yval,G4double zval,G4int tid,G4int event):x(xval),y(yval),z(zval),trackID(tid),writeAsCSV(true),eventnum(event)
 {
 
 }
@@ -63,9 +63,9 @@ std::ofstream& MDHit::operator>>(std::ofstream& of)
 	//of<<<<initalKE<<','<<finalKE<<','<<currentKE<<','<<x<<','<<y<<','<<z<<','<<actualyhitpt[0]<<','<<actualyhitpt[1]<<','<<actualyhitpt[2]<<','<<actualxhitpt[0]<<','<<actualxhitpt[1]<<','<<actualxhitpt[2]<<trackID<<
 	if(writeAsCSV)
 	{
-		of<<entryp[0]<<','<<entryp[1]<<','<<entryp[2]<<','
+		of<<eventnum<<","<<entryp[0]<<','<<entryp[1]<<','<<entryp[2]<<','
 				<<middlep[0]<<','<<middlep[1]<<','<<middlep[2]<<','
-				<<exitp[0]<<','<<exitp[1]<<','<<exitp[2]<<','<<x<<','<<y<<','<<z<<','<<actualyhitpt[0]<<','<<actualyhitpt[1]<<','<<actualyhitpt[2]<<','<<actualxhitpt[0]<<','<<actualxhitpt[1]<<','<<actualxhitpt[2]<<','<<actualyhitpt[0]<<','<<actualyhitpt[1]<<','<<actualyhitpt[2]<<','<<actualexitpoint[0]<<','<<actualexitpoint[1]<<','<<actualexitpoint[2]<<','<<"mu-"<<G4endl;
+				<<exitp[0]<<','<<exitp[1]<<','<<exitp[2]<<','<<x<<','<<y<<','<<z<<','<<actualyhitpt[0]<<','<<actualyhitpt[1]<<','<<actualyhitpt[2]<<','<<actualxhitpt[0]<<','<<actualxhitpt[1]<<','<<actualxhitpt[2]<<','<<actualexitpoint[0]<<','<<actualexitpoint[1]<<','<<actualexitpoint[2]<<','<<"mu-"<<G4endl;
 	}
 	return of;
 }
