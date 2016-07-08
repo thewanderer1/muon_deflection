@@ -65,7 +65,7 @@ std::ofstream& MDHit::operator>>(std::ofstream& of)
 	{
 		of<<entryp[0]<<','<<entryp[1]<<','<<entryp[2]<<','
 				<<middlep[0]<<','<<middlep[1]<<','<<middlep[2]<<','
-				<<exitp[0]<<','<<exitp[1]<<','<<exitp[2]<<','<<x<<','<<y<<','<<z<<','<<actualyhitpt[0]<<','<<actualyhitpt[1]<<','<<actualyhitpt[2]<<','<<actualxhitpt[0]<<','<<actualxhitpt[1]<<','<<actualxhitpt[2]<<','<<actualyhitpt[0]<<','<<actualyhitpt[1]<<','<<actualyhitpt[2]<<','<<actualexitpoint[0]<<','<<actualexitpoint[1]<<','<<actualexitpoint[2]<<','<<"mu-"<<G4endl;
+				<<exitp[0]<<','<<exitp[1]<<','<<exitp[2]<<','<<x<<','<<y<<','<<z<<','<<actualyhitpt[0]<<','<<actualyhitpt[1]<<','<<actualyhitpt[2]<<','<<actualxhitpt[0]<<','<<actualxhitpt[1]<<','<<actualxhitpt[2]<<','<<actualexitpoint[0]<<','<<actualexitpoint[1]<<','<<actualexitpoint[2]<<','<<"mu-"<<G4endl;
 	}
 	return of;
 }
