@@ -54,7 +54,7 @@ void MDSteppingAction::UserSteppingAction(const G4Step* fullstep)
 
 			G4double zposofmodule = blockzval + scintpiece->GetZHalfLength();
 			MDSteppingAction::hfx.push_back(HalfHitX(prestep->GetTouchable()->GetTranslation()[0],zposofmodule,poststep->GetMomentum(),poststep->GetPosition(),fullstep->GetTrack()->GetTrackID()));
-			G4cout<<"done: "<<poststep->GetMomentum()[0]<<" x: "<<prestep->GetTouchable()->GetTranslation()[0]<<" z: "<<zposofmodule<<G4endl;
+			//G4cout<<"done: "<<poststep->GetMomentum()[0]<<" x: "<<prestep->GetTouchable()->GetTranslation()[0]<<" z: "<<zposofmodule<<G4endl;
 
 		}
 	}

@@ -40,7 +40,7 @@ void MDEventAction::EndOfEventAction(const G4Event* evt) {
 
 	if(hitscoll)
 	{
-		G4cout<<"there are "<<hitscoll->GetSize()<<" entries"<<G4endl;
+		G4cout<<"there are "<<hitscoll->GetSize()<<" entries"<<", event num: "<<evt->GetEventID()<<G4endl;
 		for(int i = 0; i < hitscoll->GetSize(); ++i)
 		{
 			/*
@@ -50,6 +50,7 @@ void MDEventAction::EndOfEventAction(const G4Event* evt) {
 					" final ke:"<<(*hitscoll)[i]->getFinalKe()<<
 					" track id: "<<(*hitscoll)[i]->getTrackId()<<G4endl;
 			*/
+			ofs<<evt->GetEventID()<<',';
 			*((*hitscoll)[i])>>ofs;
 		}
 	}

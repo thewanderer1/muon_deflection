@@ -132,9 +132,11 @@ int main(int argc, char** argv)
 
   G4UIExecutive* ui = 0;
 
-    ui = new G4UIExecutive(argc, argv);
+//dont use the UI, go ahead an run 10,000 events
+    /*ui = new G4UIExecutive(argc, argv);
     ui->SessionStart(); //create the UI
-
+    */
+    runManager->BeamOn(10000);
 
     delete ui;
 #ifdef G4VIS_USE

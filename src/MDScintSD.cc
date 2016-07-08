@@ -11,6 +11,7 @@
 #include "G4VisAttributes.hh"
 #include "G4Box.hh"
 #include "G4ThreeVector.hh"
+#include "G4RunManager.hh"
 
 std::vector<PhotonEngs> MDScintSD::pngs;
 MDScintSD::MDScintSD(G4String name):G4VSensitiveDetector(name),hitsCollection(0),collectionID(-1),halfhits(),debugfile("debug.txt")
@@ -172,7 +173,7 @@ void MDScintSD::EndOfEvent(G4HCofThisEvent*HCE)
 			{
 				(*hitsCollection)[i]->setExitp(yt->exitp);
 				(*hitsCollection)[i]->setActualexitpoint(yt->exitpoint);
-				G4cout<<"stored: "<<yt->exitp[0]<<G4endl;
+				//G4cout<<"stored: "<<yt->exitp[0]<<G4endl;
 			}
 		}
 	}
@@ -181,7 +182,7 @@ void MDScintSD::EndOfEvent(G4HCofThisEvent*HCE)
 	std::vector<G4ThreeVector> positions;
 	std::vector<int> count;
 	std::vector<double> sumofwavelengths;
-	ofs<<"new event"<<G4endl;
+	
 
 	for(std::vector<PhotonEngs>::iterator it = pngs.begin(); it != pngs.end(); ++it)
 	{
@@ -210,9 +211,10 @@ void MDScintSD::EndOfEvent(G4HCofThisEvent*HCE)
 			//ofs<<"hi"<<G4endl;
 		}
 	}
+	G4int eid = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
 	for(int i = 0; i < positions.size(); i++)
 	{
-		ofs<<positions[i][0]<<','<<positions[i][1]<<','<<positions[i][2]<<','<<count[i]<<','<<sumofwavelengths[i]/count[i]<<G4endl;
+		ofs<<eid<<","<<positions[i][0]<<','<<positions[i][1]<<','<<positions[i][2]<<','<<count[i]<<','<<sumofwavelengths[i]/count[i]<<G4endl;
 	}
 	ofs.close();
 	//clear the static vars
