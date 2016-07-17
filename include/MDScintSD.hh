@@ -1,3 +1,6 @@
+#ifndef INCLUDE_MDSCINT_HH_
+#define INCLUDE_MDSCINT_HH_
+
 #include <vector>
 #include <fstream>
 
@@ -8,8 +11,7 @@
 #include "G4Allocator.hh"
 #include "G4ThreeVector.hh"
 
-#ifndef INCLUDE_MDSCINT_HH_
-#define INCLUDE_MDSCINT_HH_
+
 struct HalfHitX{
 	G4double x;
 	G4double zofmodule;//z of the strip

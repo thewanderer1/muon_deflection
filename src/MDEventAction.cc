@@ -5,11 +5,13 @@
  *      Author: shantam
  */
 
+
 #include "MDEventAction.hh"
 #include "MDScintSD.hh"
 #include "G4Event.hh"
 #include "G4SDManager.hh"
 #include "G4UserEventAction.hh"
+#include "RunNumber.hh"
 
 MDEventAction::MDEventAction():G4UserEventAction() {
 
@@ -22,7 +24,10 @@ MDEventAction::~MDEventAction() {
 
 void MDEventAction::EndOfEventAction(const G4Event* evt) {
 
-	std::ofstream ofs("runinfo.csv",std::ofstream::app);
+	std::string flname = "RunNumber_";
+	flname = flname + std::to_string(RunNumber) + std::string("_runinfo.csv");
+
+	std::ofstream ofs(flname,std::ofstream::app);
 
 	static int CHCID = -1;
 

@@ -2,6 +2,7 @@
 
 
 #include "G4RunManager.hh"
+#include "G4Tubs.hh"
 #include "G4NistManager.hh"
 #include "G4Box.hh"
 #include "G4Cons.hh"
@@ -60,8 +61,13 @@ G4VPhysicalVolume* MDDetectorConstruction::Construct()
 	G4Box *worldsolid = new G4Box("World",5*m, 5*m, 5*m);
 	G4Box *scint = new G4Box("scintillator",                       
        xdim/2, ydim/2, zdim/2);
+	//G4Box *denseobj = new G4Box("denseobj",100*cm,11*cm,2*cm);
+	G4Tubs *denseobj = new G4Tubs("denseobj", 0.*cm,5*cm,120*cm,0.*deg,230.*deg);
 
+	G4NistManager* mat = G4NistManager::Instance();
+	  G4Material *u = mat->FindOrBuildMaterial("G4_U");
 
+	G4LogicalVolume *logicdensebox = new G4LogicalVolume(denseobj,u,"heavything");
 
 
 	logicWorld =              
@@ -73,7 +79,8 @@ G4VPhysicalVolume* MDDetectorConstruction::Construct()
     		new G4LogicalVolume(scint,MDDetectorConstruction::GetScintillatorMaterial(),"scintillator");//create the logical volume for the scintillator
 
   G4VisAttributes *gva = new G4VisAttributes(G4Colour::Green());
-
+  G4VisAttributes *gvb = new G4VisAttributes(G4Colour::Blue());
+  logicdensebox->SetVisAttributes(gvb);
   logicScint->SetVisAttributes(gva);
   logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
 
@@ -92,6 +99,11 @@ G4VPhysicalVolume* MDDetectorConstruction::Construct()
                     	  0,                     
                       	false,                 
                       		0); //create the physical world object
+
+   	G4RotationMatrix* rm = new G4RotationMatrix();
+   	rm->rotateX(90*deg);
+
+   	G4PVPlacement *physblock = new G4PVPlacement(rm,G4ThreeVector(0,0,0),logicdensebox,"box",logicWorld,false,0);
 
   SetScintillators();
 

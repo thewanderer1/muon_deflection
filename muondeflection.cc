@@ -63,6 +63,7 @@ ENSURE THAT THE LONG DIMENSION FOR THE STRIP IS THE X DIMENSION
 #include "MDEventAction.hh"
 #include "MDStackingAction.hh"
 #include <fstream>
+#include "RunNumber.hh"
 
 #include "MDDetectorConstruction.hh"
 
@@ -70,13 +71,42 @@ void ReadFileAndCreateDetectorGeometry(std::ifstream& file);
 
 G4RunManager* runManager = new G4RunManager; //create the default run manager
 
+int RunNumber = 0;
+
 int main(int argc, char** argv)
 {
-
-	std::ofstream ofs("runinfo.csv");
+	std::ifstream rdrn("run_number.txt");
+	int runnum = 0;
+	std::string strrun;
+	if(rdrn)//exits
+	{
+		rdrn>>strrun;
+		runnum = std::stoi(strrun);
+		rdrn.close();
+		std::ofstream rdrno("run_number.txt");
+		runnum++;
+		rdrno<<(runnum);
+		rdrno.close();
+	}
+	else
+	{
+		//create one
+		rdrn.close();
+		std::ofstream rdrno("run_number.txt");
+		rdrno<<0;
+		rdrno.close();
+		//runnum = 0;
+	}
+	RunNumber = runnum;
+	std::string flname = "RunNumber_";
+	flname = flname + std::to_string(RunNumber) + std::string("_photoninfo.csv");
+	std::ofstream ofs(flname);
 	ofs.close(); //clear the file
-	std::ofstream k("photoninfo.csv");
+	flname = "RunNumber_";
+	flname = flname + std::to_string(RunNumber) + std::string("_runinfo.csv");
+	std::ofstream k(flname);
 	k.close();
+	RunNumber = runnum;
 
   G4UImanager* UI = G4UImanager::GetUIpointer();//create the ui system
 
@@ -86,6 +116,32 @@ int main(int argc, char** argv)
   //read the file here
 
   std::ifstream file(argv[1]);
+
+  //read in the number of events here
+
+  std::vector<std::string> firstline;
+
+  std::string line;
+  std::string entry;
+
+  std::getline(file,line);
+
+  std::stringstream strstrm(line);
+
+  while(std::getline(strstrm,entry,','))
+  {
+    firstline.push_back(entry);
+  }
+
+  if(firstline[0] != "numEvents")
+  {
+	  G4cout<<"error reading file: numEvents not found"<<G4endl;
+	  exit(1);
+  }
+
+  int numberofevents = std::stoi(firstline[1]);
+
+  //now create the detector geometry
 
   ReadFileAndCreateDetectorGeometry(file);
 
@@ -133,10 +189,10 @@ int main(int argc, char** argv)
   G4UIExecutive* ui = 0;
 
 //dont use the UI, go ahead an run 10,000 events
-    /*ui = new G4UIExecutive(argc, argv);
-    ui->SessionStart(); //create the UI
-    */
-    runManager->BeamOn(10000);
+   //ui = new G4UIExecutive(argc, argv);
+    //ui->SessionStart(); //create the UI
+
+    runManager->BeamOn(numberofevents);
 
     delete ui;
 #ifdef G4VIS_USE

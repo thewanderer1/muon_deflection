@@ -12,6 +12,7 @@
 #include "G4Box.hh"
 #include "G4ThreeVector.hh"
 #include "G4RunManager.hh"
+#include "RunNumber.hh"
 
 std::vector<PhotonEngs> MDScintSD::pngs;
 MDScintSD::MDScintSD(G4String name):G4VSensitiveDetector(name),hitsCollection(0),collectionID(-1),halfhits(),debugfile("debug.txt")
@@ -178,7 +179,10 @@ void MDScintSD::EndOfEvent(G4HCofThisEvent*HCE)
 		}
 	}
 
-	std::ofstream ofs("photoninfo.csv",std::ofstream::app);
+	std::string flname = "RunNumber_";
+	flname = flname + std::to_string(RunNumber) + std::string("_photoninfo.csv");
+
+	std::ofstream ofs(flname,std::ofstream::app);
 	std::vector<G4ThreeVector> positions;
 	std::vector<int> count;
 	std::vector<double> sumofwavelengths;

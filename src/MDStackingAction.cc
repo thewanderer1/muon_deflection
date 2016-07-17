@@ -51,8 +51,8 @@ G4ClassificationOfNewTrack MDStackingAction::ClassifyNewTrack(const G4Track* trk
 		G4String particleName;
 		G4ParticleDefinition* muon = particleTable->FindParticle(particleName="mu-");
 		G4ParticleDefinition* elec = particleTable->FindParticle(particleName="e-");
-		if(!((*(trk->GetParticleDefinition()) == *muon) || (*(trk->GetParticleDefinition()) == *elec)))
-			G4cout<<trk->GetDefinition()->GetParticleName()<<G4endl;
+		//if(!((*(trk->GetParticleDefinition()) == *muon) || (*(trk->GetParticleDefinition()) == *elec)))
+			//G4cout<<trk->GetDefinition()->GetParticleName()<<G4endl;
 		return fUrgent;
 	}
 
