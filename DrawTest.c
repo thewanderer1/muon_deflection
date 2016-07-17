@@ -20,7 +20,7 @@
 int DrawTest()
 {
 
-	std::ifstream ifs("runinfo.csv",std::ifstream::in);
+	std::ifstream ifs("testsim.csv",std::ifstream::in);
 	if(!ifs)
 		std::cout<<"error";
 
@@ -57,17 +57,17 @@ int DrawTest()
 	  std::stringstream strstrm(line);
 	  while(std::getline(strstrm,entry,','))
 	  {
-	  	if(col == 10)
+	  	if(col == 11)
 	  	{
 	  		x = std::stoi(entry)/(double) 10.;
 	  		cout<<x<<endl;
 	  	}
-	  	else if(col == 11)
+	  	else if(col == 12)
 	  	{
 	  		y = std::stoi(entry)/(double) 10.;
 			cout<<y<<endl;
 	  	}
-	  	else if(col == 12)
+	  	else if(col == 13)
 	  	{
 	  		z = std::stoi(entry)/(double) 10.;
 			cout<<z<<endl;
@@ -130,7 +130,22 @@ int DrawTest()
 	   ROOT::Math::Functor fcn2(lf2,6);
 	#endif
 
-	double paramstart[6] = {-10.,-10.,-10.,-10.,-10.,-10.};
+	//double paramstart[6] = {-10.,-10.,-10.,-10.,-10.,-10.};
+
+	double* x1,*y1,*z1;
+	x1 = dt->GetX();
+	y1 = dt->GetY();
+	z1 = dt->GetZ();
+
+	int lastpt = dt->GetN() - 1;
+
+	XYZVector firstpt(x1[0],y1[0],z1[0]);
+	
+	XYZVector secondpt(x1[lastpt],y1[lastpt],z1[lastpt]);
+
+	XYZVector dir = secondpt - firstpt; 
+
+	double paramstart[6] = {secondpt.x(),secondpt.y(),secondpt.z(),dir.x(),dir.y(),dir.z()};
 
 	int n = 10000;
 
@@ -138,7 +153,7 @@ int DrawTest()
 
 	fitter.SetFCN(fcn,paramstart);
 
-	for (int i = 0; i < 4; ++i) fitter.Config().ParSettings(i).SetStepSize(0.01);
+	for (int i = 0; i < 6; ++i) fitter.Config().ParSettings(i).SetStepSize(0.01);
 
 	bool ok = fitter.FitFCN();
 
@@ -152,7 +167,7 @@ int DrawTest()
 	std::cout << "Total final distance square " << result.MinFcnValue() << std::endl;
 	result.Print(std::cout);
 
-	//dt->Draw("P");
+	dt->Draw("P");
 	//dt2->DrawClone("P same");
 	//c1->Modified();
 	//c1->Update();
@@ -170,8 +185,8 @@ int DrawTest()
 	}
 
 	
-	double t0 = 50;
-	double dtl = 250;
+	double t0 = 0;
+	double dtl = -250;
 	TPolyLine3D *l = new TPolyLine3D(n);
 	for (int i = 0; i <n;++i) {
 	   double t = t0+ dtl*i/n;
@@ -182,12 +197,28 @@ int DrawTest()
 	}
 	l->SetLineColor(kRed);
 	//h2->Draw();
-	//l->Draw("same");
+	l->Draw("same");
+
+	double* x2,*y2,*z2;
+	x2 = dt2->GetX();
+	y2= dt2->GetY();
+	z2 = dt2->GetZ();
+
+	int lastpt2 = dt2->GetN() - 1;
+
+	XYZVector firstpt2(x2[0],y2[0],z2[0]);
+	
+	XYZVector secondpt2(x2[lastpt],y2[lastpt],z2[lastpt]);
+
+	XYZVector dir2 = secondpt2 - firstpt2; 
+
+	double paramstart2[6] = {secondpt2.x(),secondpt2.y(),secondpt2.z(),dir2.x(),dir2.y(),dir2.z()};
+
 	
 
-	fitter.SetFCN(fcn2,paramstart);
+	fitter.SetFCN(fcn2,paramstart2);
 
-	for (int i = 0; i < 4; ++i) fitter.Config().ParSettings(i).SetStepSize(0.01);
+	for (int i = 0; i < 6; ++i) fitter.Config().ParSettings(i).SetStepSize(0.01);
 
 	bool ok1 = fitter.FitFCN();
 
@@ -219,7 +250,7 @@ int DrawTest()
 	}
 	l2->SetLineColor(kRed);
 	//l2->Draw("same");
-
+/*
 	ROOT::Fit::Fitter  fitter2;
 
 	ImpactPointFit ipf(parFit1,parFit2);
@@ -242,8 +273,8 @@ int DrawTest()
 	{
 		cout<<"failed"<<endl;
 		return 1;
-	}
-
+	}*/
+/*
 	const ROOT::Fit::FitResult & resultipf = fitter2.Result();
 
 	std::cout << "Total final distance square " << resultipf.MinFcnValue() << std::endl;
@@ -251,13 +282,13 @@ int DrawTest()
 
 	const double *ipfparams = resultipf.GetParams();
 
-	cout<<ipfparams[0]<<','<<ipfparams[1]<<endl;
-
+//	cout<<ipfparams[0]<<','<<ipfparams[1]<<endl;
+*/
 /*	TBox *tb = new TBox(10,10,20,20);
 	tb->SetFillColor(2);
 	tb->Draw("same");
 	return 0;*/
-
+/*
 	TPolyMarker3D *tpd = new TPolyMarker3D();
 	//double x,y,z;
 	line1(ipfparams[0],parFit1,x,y,z);
@@ -282,5 +313,7 @@ int DrawTest()
 	
 	cout<<c1.x()<<','<<c1.y()<<','<<c1.z()<<','<<endl;
 	cout<<c2.x()<<','<<c2.y()<<','<<c2.z()<<','<<endl;
+*/
+
 	return 0;
 }
