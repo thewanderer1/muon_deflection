@@ -288,16 +288,15 @@ int DrawTest()
 	tb->SetFillColor(2);
 	tb->Draw("same");
 	return 0;*/
-/*
+
 	TPolyMarker3D *tpd = new TPolyMarker3D();
 	//double x,y,z;
-	line1(ipfparams[0],parFit1,x,y,z);
-	cout<<x<<','<<y<<','<<z<<','<<endl;
-	tpd->SetPoint(0,x,y,z);
-	line1(ipfparams[1],parFit2,x,y,z);
-	tpd->SetPoint(1,x,y,z);
+	//line1(ipfparams[0],parFit1,x,y,z);
+//	tpd->SetPoint(0,x,y,z);
+//	line1(ipfparams[1],parFit2,x,y,z);
+	//tpd->SetPoint(1,x,y,z);
 
-	cout<<x<<','<<y<<','<<z<<','<<endl;
+	//cout<<x<<','<<y<<','<<z<<','<<endl;
 
 	XYZVector p1(parFit1[0],parFit1[1],parFit1[2]);
 	XYZVector p2(parFit2[0],parFit2[1],parFit2[2]);
@@ -313,7 +312,39 @@ int DrawTest()
 	
 	cout<<c1.x()<<','<<c1.y()<<','<<c1.z()<<','<<endl;
 	cout<<c2.x()<<','<<c2.y()<<','<<c2.z()<<','<<endl;
-*/
+
+	XYZVector impactpt((c1.x()+c2.x())/2,(c1.y()+c2.y())/2,(c1.z()+c2.z())/2);
+	cout<<impactpt.x()<<','<<impactpt.y()<<','<<impactpt.z()<<','<<endl;
+
+	double ax = parFit1[0];
+	double bx = parFit1[3];
+	double ay = parFit1[1];
+	double by = parFit1[4];
+
+	double c = parFit1[2];
+	double d = parFit1[5];
+
+	double px = parFit2[0];
+	double qx = parFit2[3];
+	double py = parFit2[1];
+	double qy = parFit2[4];
+
+	double n = parFit2[2];
+	double m = parFit2[5];
+
+
+	double xzcoeffsvals[4] = {parFit1[5],parFit2[5],-parFit1[3],-parFit2[3]};
+	double xzsolsvals[2] = {parFit1[5]*parFit1[0] - parFit1[3]*parFit1[2],parFit2[5]*parFit2[0] - parFit2[3]*parFit2[2]};
+	TMatrixD xzcoeffs(2,2,xzcoeffsvals,0);
+	TMatrixD xzsols(2,1,xzsolsvals,0);
+
+	xzcoeffs = xzcoeffs.Invert();
+
+	xzcoeffs =* xzsolsvals;
+
+	double *solns = xzcoeffs.GetMatrixArray();
+
+	cout<<solns[1]<<','<<solns[2]<<endl;
 
 	return 0;
 }

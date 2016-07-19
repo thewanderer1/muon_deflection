@@ -55,8 +55,8 @@ void Plot(TGraph2D *t1, TGraph2D *t2)
 void Analyze(const int runnumber)
 {	
 	TGraph2D *impactpoints = new TGraph2D();
-	TH1D *h1 = new TH1D("distr","Distribution of deflection angles",50,0,6);
-	TH1D *impactdists = new TH1D("impact dists","Distribution of impact Distances",500,0,3000);
+	TH1D *h1 = new TH1D("distr","Distribution of deflection angles",200,0,10);
+	TH1D *impactdists = new TH1D("impact dists","Distribution of impact Distances",500,0,5);
 	//rebin the last if using different materials
 	int impactpointscounter = 0;
 	std::string flname = "RunNumber_";
@@ -115,8 +115,8 @@ void Analyze(const int runnumber)
 		if (currenteventnum != nexteventnum && z == -300)
 		{
 			bot->SetPoint(i2,x,y,z);
-			cout<<x<<','<<y<<','<<z<<endl;
-			cout<<"fit"<<endl;
+			//cout<<x<<','<<y<<','<<z<<endl;
+			//cout<<"fit"<<endl;
 
 			i1 = 0;
 			i2 = 0;
@@ -131,6 +131,8 @@ void Analyze(const int runnumber)
 				cout<<i<<endl;
 				//exit(1);
 			}*/
+
+				//algo from here : https://en.wikipedia.org/wiki/Skew_lines#Nearest_Points
 			
 
 			XYZVector d1(topparams[3],topparams[4],topparams[5]);
@@ -172,18 +174,19 @@ void Analyze(const int runnumber)
 			//add closest point here
 			//evtlist.push_back(e);
 
-			if(((impactpt.z() < 100 && impactpt.z() > -100) && (impactpt.x() < 500 && impactpt.x() > -500))&&(impactpt.y() < 500 && impactpt.y() > -500))
+			if(((impactpt.z() < 100 && impactpt.z() > -100) && (impactpt.x() < 250 && impactpt.x() > -250))&&(impactpt.y() < 250 && impactpt.y() > -250))
 			{
-				if(sqrt(impactpt.Mag2())*2 < 140. && (acos(dp)*180/PI) > 0.7)
+				if((sqrt((impactpt-c1).Mag2())*2) <0.5)// && (acos(dp)*180/PI) > 2.5)
 				{
 					impactpoints->SetPoint(impactpointscounter,impactpt.x(),impactpt.y(),impactpt.z());
 					impactpointscounter++;
+					h1->Fill(acos(dp)*180/PI);
 				}
 			}
 
 			fitinfo<<dp<<','<<acos(dp)*180/PI<<','<<impactpt.x()<<','<<impactpt.y()<<','<<impactpt.z()<<','<<c1.x()<<','<<c1.y()<<','<<c1.z()<<','<<c2.x()<<','<<c2.y()<<','<<c2.z()<<','<<sqrt(impactpt.Mag2())*2<<endl;
-			h1->Fill(acos(dp)*180/PI);
-			impactdists->Fill(sqrt(impactpt.Mag2())*2);
+			
+			impactdists->Fill(sqrt((impactpt-c1).Mag2())*2);
 
 			delete top;
 			delete bot;
@@ -194,8 +197,8 @@ void Analyze(const int runnumber)
 		else if(currenteventnum != nexteventnum)
 		{
 			//reset the loop
-			cout<<x<<','<<y<<','<<z<<endl;
-			cout<<"reset"<<endl;
+			//cout<<x<<','<<y<<','<<z<<endl;
+			//cout<<"reset"<<endl;
 
 			delete top;
 			delete bot;
@@ -209,13 +212,13 @@ void Analyze(const int runnumber)
 		else if(z > 0)
 		{
 			top->SetPoint(i1,x,y,z);
-			cout<<x<<','<<y<<','<<z<<endl;
+			//cout<<x<<','<<y<<','<<z<<endl;
 			++i1;
 		}
 		else if(z < 0)
 		{
 			bot->SetPoint(i2,x,y,z);
-			cout<<x<<','<<y<<','<<z<<endl;
+			//cout<<x<<','<<y<<','<<z<<endl;
 			++i2;
 		}
 

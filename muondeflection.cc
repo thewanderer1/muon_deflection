@@ -67,7 +67,7 @@ ENSURE THAT THE LONG DIMENSION FOR THE STRIP IS THE X DIMENSION
 
 #include "MDDetectorConstruction.hh"
 
-void ReadFileAndCreateDetectorGeometry(std::ifstream& file);
+void ReadFileAndCreateDetectorGeometry(std::ifstream& file,std::ifstream&);
 
 G4RunManager* runManager = new G4RunManager; //create the default run manager
 
@@ -111,11 +111,12 @@ int main(int argc, char** argv)
   G4UImanager* UI = G4UImanager::GetUIpointer();//create the ui system
 
 
-  assert(argc == 2);//ensure that there is one and only one input (config file name)
+  assert(argc == 3);//ensure that there is one and only one input (config file name)
 
   //read the file here
 
   std::ifstream file(argv[1]);
+  std::ifstream denseblocksfile(argv[2]);
 
   //read in the number of events here
 
@@ -143,7 +144,10 @@ int main(int argc, char** argv)
 
   //now create the detector geometry
 
-  ReadFileAndCreateDetectorGeometry(file);
+  G4cout<<"hit"<<G4endl;
+
+  ReadFileAndCreateDetectorGeometry(file,denseblocksfile);
+
 
   #ifdef G4VIS_USE
     // visualization manager
@@ -189,12 +193,12 @@ int main(int argc, char** argv)
   G4UIExecutive* ui = 0;
 
 //dont use the UI, go ahead an run 10,000 events
-   //ui = new G4UIExecutive(argc, argv);
-    //ui->SessionStart(); //create the UI
+   ui = new G4UIExecutive(argc, argv);
+   ui->SessionStart(); //create the UI
 
-    runManager->BeamOn(numberofevents);
+   // runManager->BeamOn(numberofevents);
 
-    delete ui;
+    //delete ui;
 #ifdef G4VIS_USE
     delete visManager;
 #endif
@@ -204,9 +208,10 @@ int main(int argc, char** argv)
   return 0;
 }
 
-void ReadFileAndCreateDetectorGeometry(std::ifstream& file)
+void ReadFileAndCreateDetectorGeometry(std::ifstream& file, std::ifstream& denseblocks)
 {
   std::vector<std::string> fileinfo;
+  std::vector<std::vector<std::string>> densefileinfo;
   std::string line;
   std::string entry;
   //storing the vars in any order is is fine as long as they are first
@@ -218,6 +223,17 @@ void ReadFileAndCreateDetectorGeometry(std::ifstream& file)
     {
       fileinfo.push_back(entry);
     }
+  }
+
+  while(std::getline(denseblocks,line))//store the contents of the file delemited by a return or a comma
+  {
+    std::stringstream strstrm(line);
+    std::vector<std::string> bits;
+    while(std::getline(strstrm,entry,','))
+    {
+      bits.push_back(entry);
+    }
+    densefileinfo.push_back(bits);
   }
 
 
@@ -272,6 +288,7 @@ void ReadFileAndCreateDetectorGeometry(std::ifstream& file)
   }
 
     //check to make sure all vars were loaded
+
   for(int j = 0; j < 2; ++j)
   {
     if(!done[j])
@@ -288,12 +305,58 @@ void ReadFileAndCreateDetectorGeometry(std::ifstream& file)
     exit(1);
   }
 
+	std::vector<G4ThreeVector> densepositions;
+	std::vector<G4ThreeVector> densesize;
+	std::vector<std::string> densetypes;
+	std::vector<std::string> densematerials;
+
+  for(std::vector<std::vector<std::string>>::iterator it = densefileinfo.begin(); it != densefileinfo.end(); ++it)
+  {
+	  //G4cout<<"hit"<<G4endl;
+	  if(((*it).empty()))
+		  break;
+	  if(((*it)[0].at(0)) == '#')
+		  continue;
+
+	  if((*it)[0] == "rectangle")
+	  {
+		  densematerials.push_back((*it)[1]);
+		  double sizex = std::stod((*it)[2]);
+		  double sizey = std::stod((*it)[3]);
+		  double sizez = std::stod((*it)[4]);
+		  densesize.push_back(G4ThreeVector(sizex*cm,sizey*cm,sizez*cm));
+		  double posx = std::stod((*it)[5]);
+		  double posy = std::stod((*it)[6]);
+		  double posz = std::stod((*it)[7]);
+		  densepositions.push_back(G4ThreeVector(posx*cm,posy*cm,posz*cm));
+		  densetypes.push_back(std::string("rectangle"));
+	  }
+	  else if((*it)[0] == "cylinder")
+	  {
+		  densematerials.push_back((*it)[1]);
+		  double innerrad = std::stod((*it)[2]);
+		  double outerrad = std::stod((*it)[3]);
+		  double height = std::stod((*it)[4]);
+		  densesize.push_back(G4ThreeVector(innerrad*cm,outerrad*cm,height*cm));
+		  double posx = std::stod((*it)[5]);
+		  double posy = std::stod((*it)[6]);
+		  double posz = std::stod((*it)[7]);
+		  densepositions.push_back(G4ThreeVector(posx*cm,posy*cm,posz*cm));
+		  densetypes.push_back(std::string("cylinder"));
+	  }
+	  else
+	  {
+		  G4cout<<"error in reading the blocks file"<<G4endl;
+		  exit(1);
+	  }
+  }
+
   std::cout<<"vars loaded"<<std::endl;
 
   assert((stripx/stripy-(int) (stripx/stripy)) == 0); //check if the number of strips is a whole number
 
-
-  runManager->SetUserInitialization(new MDDetectorConstruction(nummodules,G4ThreeVector(stripx*cm,stripy*cm,stripz*cm),positions));
+  //G4cout<<"hit"<<G4endl;
+  runManager->SetUserInitialization(new MDDetectorConstruction(nummodules,G4ThreeVector(stripx*cm,stripy*cm,stripz*cm),positions,densepositions,densesize,densetypes,densematerials));
 
 
 }

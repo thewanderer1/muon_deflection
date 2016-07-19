@@ -12,7 +12,7 @@
 class MDDetectorConstruction: public G4VUserDetectorConstruction
 {
 public:
-	MDDetectorConstruction(int nummodules,G4ThreeVector dim,std::vector<G4ThreeVector>); // x dim has to be divisble by ydim!! and y dim must equal z dim in the vector dim
+	MDDetectorConstruction(int nummodules,G4ThreeVector dim,std::vector<G4ThreeVector>,std::vector<G4ThreeVector>,std::vector<G4ThreeVector>,std::vector<std::string>,std::vector<std::string>); // x dim has to be divisble by ydim!! and y dim must equal z dim in the vector dim
 	
 	virtual ~MDDetectorConstruction();
 
@@ -36,6 +36,10 @@ private:
 	void SetScintillators();
 	G4VPhysicalVolume* physWorld;
 	std::vector<G4ThreeVector> positions;
+	std::vector<G4ThreeVector> densepositions;
+	std::vector<G4ThreeVector> densesize;
+	std::vector<std::string> densetypes;
+	std::vector<std::string> densematerials;
 	double xdim;
 	double ydim;
 	double zdim;
