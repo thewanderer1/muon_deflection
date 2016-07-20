@@ -55,8 +55,9 @@ void Plot(TGraph2D *t1, TGraph2D *t2)
 void Analyze(const int runnumber)
 {	
 	TGraph2D *impactpoints = new TGraph2D();
-	TH1D *h1 = new TH1D("distr","Distribution of deflection angles",200,0,10);
+	TH1D *h1 = new TH1D("distr","Distribution of deflection angles",70,0,10);
 	TH1D *impactdists = new TH1D("impact dists","Distribution of impact Distances",500,0,5);
+	TH3D *values = new TH3D("impactposvsangle","Impact Positions",60,-250,250,60,-250,250,31,-100,100);
 	//rebin the last if using different materials
 	int impactpointscounter = 0;
 	std::string flname = "RunNumber_";
@@ -181,7 +182,13 @@ void Analyze(const int runnumber)
 					impactpoints->SetPoint(impactpointscounter,impactpt.x(),impactpt.y(),impactpt.z());
 					impactpointscounter++;
 					h1->Fill(acos(dp)*180/PI);
+
+					int xbin = (int) (impactpt.x() + 250)/(500./ (double) 60.);
+					int ybin = (int) (impactpt.y() + 250)/(500./ (double) 60.); 
+					int zbin = (int) (impactpt.z() + 100)/(200./ (double) 30.);
+					values->SetBinContent(xbin,ybin,zbin,values->GetBinContent(xbin,ybin,zbin) + acos(dp)*180/PI);
 				}
+
 			}
 
 			fitinfo<<dp<<','<<acos(dp)*180/PI<<','<<impactpt.x()<<','<<impactpt.y()<<','<<impactpt.z()<<','<<c1.x()<<','<<c1.y()<<','<<c1.z()<<','<<c2.x()<<','<<c2.y()<<','<<c2.z()<<','<<sqrt(impactpt.Mag2())*2<<endl;
@@ -229,7 +236,8 @@ void Analyze(const int runnumber)
 	impactpoints->SetMarkerStyle(34);
 	impactpoints->SetMarkerSize(1);
 	impactpoints->SetMarkerColor(2);
-	impactpoints->Draw("P");
+	//impactpoints->Draw("P");
+	values->Draw("BOX");
 
 	fitinfo.close();
 	TCanvas *c3 = new TCanvas("c3");

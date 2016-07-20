@@ -124,12 +124,14 @@ G4VPhysicalVolume* MDDetectorConstruction::Construct()
    		}
    		else if(densetypes[i] == "cylinder")
    		{
-   			G4Tubs *block = new G4Tubs("tub",densesize[i][0],densesize[i][1],densesize[i][2]/2.,0*deg,360*deg);
+   			G4RotationMatrix *grm = new G4RotationMatrix();
+   			grm->rotateY(densesize[i][0]);
+   			G4Tubs *block = new G4Tubs("tub",0.,densesize[i][1],densesize[i][2]/2.,0*deg,360*deg);
    			logicdensebox = new G4LogicalVolume(block,u,"heavything");
    			G4VisAttributes *gvb = new G4VisAttributes(G4Colour::Blue());
 			logicdensebox->SetVisAttributes(gvb);
 
-			G4PVPlacement *physblock = new G4PVPlacement(0,G4ThreeVector(densepositions[i][0],densepositions[i][1],densepositions[i][2]),logicdensebox,"block",logicWorld,false,0);
+			G4PVPlacement *physblock = new G4PVPlacement(grm,G4ThreeVector(densepositions[i][0],densepositions[i][1],densepositions[i][2]),logicdensebox,"block",logicWorld,false,0);
    		}
    		else
    		{

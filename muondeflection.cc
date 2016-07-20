@@ -111,12 +111,12 @@ int main(int argc, char** argv)
   G4UImanager* UI = G4UImanager::GetUIpointer();//create the ui system
 
 
-  assert(argc == 3);//ensure that there is one and only one input (config file name)
+  assert(argc == 4);//ensure that there is one and only one input (config file name)
 
   //read the file here
 
-  std::ifstream file(argv[1]);
-  std::ifstream denseblocksfile(argv[2]);
+  std::ifstream file(argv[2]);
+  std::ifstream denseblocksfile(argv[3]);
 
   //read in the number of events here
 
@@ -193,11 +193,15 @@ int main(int argc, char** argv)
   G4UIExecutive* ui = 0;
 
 //dont use the UI, go ahead an run 10,000 events
+  if(std::string(argv[1]) == "-ui")
+  {
    ui = new G4UIExecutive(argc, argv);
    ui->SessionStart(); //create the UI
-
-   // runManager->BeamOn(numberofevents);
-
+  }
+  else if(std::string(argv[1]) == "-run")
+  {
+   runManager->BeamOn(numberofevents);
+  }
     //delete ui;
 #ifdef G4VIS_USE
     delete visManager;
@@ -334,10 +338,10 @@ void ReadFileAndCreateDetectorGeometry(std::ifstream& file, std::ifstream& dense
 	  else if((*it)[0] == "cylinder")
 	  {
 		  densematerials.push_back((*it)[1]);
-		  double innerrad = std::stod((*it)[2]);
+		  double anglerotated = std::stod((*it)[2]);
 		  double outerrad = std::stod((*it)[3]);
 		  double height = std::stod((*it)[4]);
-		  densesize.push_back(G4ThreeVector(innerrad*cm,outerrad*cm,height*cm));
+		  densesize.push_back(G4ThreeVector(anglerotated*deg,outerrad*cm,height*cm));
 		  double posx = std::stod((*it)[5]);
 		  double posy = std::stod((*it)[6]);
 		  double posz = std::stod((*it)[7]);
