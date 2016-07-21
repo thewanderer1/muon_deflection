@@ -7,6 +7,7 @@
 
 #include "MDSteppingAction.hh"
 #include "MDDetectorConstruction.hh"
+#include "MDScintillatorBlock.hh"
 #include "globals.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
@@ -35,7 +36,7 @@ void MDSteppingAction::UserSteppingAction(const G4Step* fullstep)
 	if((*(fullstep->GetTrack()->GetParticleDefinition()) == *muon))
 	{
 
-		if((*(fullstep->GetPostStepPoint()->GetMaterial()) ==  *(MDDetectorConstruction::GetVaccuumMaterial())) &&
+		if((*(fullstep->GetPostStepPoint()->GetMaterial()) !=  *(MDDetectorConstruction::GetScintillatorMaterial())) &&
 				(*(fullstep->GetPreStepPoint()->GetMaterial()) == *(MDDetectorConstruction::GetScintillatorMaterial())))
 		{
 			G4StepPoint *prestep = fullstep->GetPreStepPoint();

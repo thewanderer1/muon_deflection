@@ -8,9 +8,11 @@
 #include "globals.hh"
 #include "G4Material.hh"
 #include "G4ThreeVector.hh"
+#include "G4Box.hh"
 
 class MDDetectorConstruction: public G4VUserDetectorConstruction
 {
+	friend class MDScintillatorBlock;
 public:
 	MDDetectorConstruction(int nummodules,G4ThreeVector dim,std::vector<G4ThreeVector>,std::vector<G4ThreeVector>,std::vector<G4ThreeVector>,std::vector<std::string>,std::vector<std::string>); // x dim has to be divisble by ydim!! and y dim must equal z dim in the vector dim
 	
@@ -44,8 +46,13 @@ private:
 	double ydim;
 	double zdim;
 	int numstrips;
-	G4LogicalVolume* logicScint;
+
 	G4LogicalVolume* logicWorld; 
+
+	G4LogicalVolume *logichousing;
+	G4LogicalVolume *logicscint;
+	G4Box *scint_box;
+	G4Box *housing_box;
 };
  
 

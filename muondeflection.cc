@@ -169,10 +169,12 @@ int main(int argc, char** argv)
   runManager->SetUserAction(new MDEventAction());
   runManager->SetUserAction(new MDStackingAction());
  // runManager->SetUserAction(new MDTrackingAction());
-  //still need to make photons invisible
+
+
 
   // initialize G4 kernel
   runManager->Initialize();
+
 
  // G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance(); //create the vis manager
 
@@ -360,6 +362,7 @@ void ReadFileAndCreateDetectorGeometry(std::ifstream& file, std::ifstream& dense
   assert((stripx/stripy-(int) (stripx/stripy)) == 0); //check if the number of strips is a whole number
 
   //G4cout<<"hit"<<G4endl;
+
   runManager->SetUserInitialization(new MDDetectorConstruction(nummodules,G4ThreeVector(stripx*cm,stripy*cm,stripz*cm),positions,densepositions,densesize,densetypes,densematerials));
 
 

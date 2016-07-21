@@ -18,6 +18,7 @@
 #include "MDScintSD.hh"
 #include "G4SDManager.hh"
 #include <cassert>
+#include "MDScintillatorBlock.hh"
 
 G4Material *MDDetectorConstruction::vacuum = new G4Material("Vacuum",1.,1.01*g/mole,
 	                            universe_mean_density,kStateGas,0.1*kelvin,
@@ -37,8 +38,30 @@ MDDetectorConstruction::MDDetectorConstruction(int nummodules,G4ThreeVector dim,
   densepositions(dpos),
   densesize(dsize),
   densetypes(dtypes),
-  densematerials(dmats)
+  densematerials(dmats),
+  scint_box(new G4Box("scint_box",(dim[0]/2),(dim[1]/2),(dim[2]/2))),
+  housing_box(new G4Box("housing_box",(dim[0]/2)+0.1*mm,(dim[1]/2)+0.1*mm,(dim[2]/2)+0.1*mm))
 {
+
+	  logicscint = new G4LogicalVolume(scint_box,MDDetectorConstruction::GetScintillatorMaterial(),"scint_log");
+	G4NistManager* mat = G4NistManager::Instance();
+	G4Material *pe = mat->FindOrBuildMaterial("G4_POLYETHYLENE");
+
+	//add the optical values in here
+
+	G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+
+	MDScintSD *mds = new MDScintSD("/mydet/scint1");
+	logichousing = new G4LogicalVolume(housing_box,pe,"housing_log");
+
+	SDMan->AddNewDetector(mds);
+	logicscint->SetSensitiveDetector(mds);
+
+	G4VisAttributes *gva = new G4VisAttributes(G4Colour::Green());
+	G4VisAttributes *gvb = new G4VisAttributes(G4Colour::Magenta());
+
+	logicscint->SetVisAttributes(gva);
+	logichousing->SetVisAttributes(gvb);
 
 
 }
@@ -63,15 +86,8 @@ G4VPhysicalVolume* MDDetectorConstruction::Construct()
 
 //create the scintillator strips and the world
 	G4Box *worldsolid = new G4Box("World",5*m, 5*m, 5*m);
-	G4Box *scint = new G4Box("scintillator",                       
-       xdim/2, ydim/2, zdim/2);
-	//G4Box *denseobj = new G4Box("denseobj",100*cm,11*cm,2*cm);
-	//G4Tubs *denseobj = new G4Tubs("denseobj", 0.*cm,5*cm,120*cm,0.*deg,230.*deg);
 
 	G4NistManager* mat = G4NistManager::Instance();
-	  //G4Material *u = mat->FindOrBuildMaterial("G4_U");
-
-	//G4LogicalVolume *logicdensebox = new G4LogicalVolume(denseobj,u,"heavything");
 
 
 	logicWorld =              
@@ -79,29 +95,13 @@ G4VPhysicalVolume* MDDetectorConstruction::Construct()
             MDDetectorConstruction::GetVaccuumMaterial(),
             "World");  
 
-	logicScint =                         
-    		new G4LogicalVolume(scint,MDDetectorConstruction::GetScintillatorMaterial(),"scintillator");//create the logical volume for the scintillator
 
-  G4VisAttributes *gva = new G4VisAttributes(G4Colour::Green());
 
-  logicScint->SetVisAttributes(gva);
+//  logicScint->SetVisAttributes(gva);
   logicWorld->SetVisAttributes(G4VisAttributes::Invisible);
+  physWorld = new G4PVPlacement(0,G4ThreeVector(0,0,0),logicWorld,"world",0,false,0);
 
-  G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-
-  MDScintSD *mds = new MDScintSD("/mydet/scint1");
-
-  SDMan->AddNewDetector(mds);
-  logicScint->SetSensitiveDetector(mds);
-
-   	physWorld = 
-    	new G4PVPlacement(0,                     
-        	              G4ThreeVector(),       
-            	          logicWorld,            
-                	      "World",               
-                    	  0,                     
-                      	false,                 
-                      		0); //create the physical world object
+ //create the physical world object
 
   // 	G4RotationMatrix* rm = new G4RotationMatrix();
    //	rm->rotateX(90*deg);
@@ -141,16 +141,93 @@ G4VPhysicalVolume* MDDetectorConstruction::Construct()
 
    	}
 
+
   SetScintillators();
 
     
 
     return physWorld;
 
+
+}
+
+
+
+void MDDetectorConstruction::SetScintillators()
+{
+
+//rather than create a whole another class, a series of for loops is used to place the scintillators
+  //this is due to the fact that it will be much easier to recover the position in this way using the 
+  //built in geant4 systems
+  for(int j = 0; j<nummodules; ++j)//master for loop that runs through the number of times the modules should be placed
+  {
+    G4ThreeVector currpos = positions[j];
+
+    for(int i = 0; i < numstrips; i++)//place first layer
+    {
+
+      G4VPhysicalVolume* physScint = 
+        new MDScintillatorBlock(0,                     //no rotation
+                          G4ThreeVector(0+currpos[0],(xdim)/2-i*ydim-ydim/2+currpos[1],ydim/2+currpos[2]+0.1*mm),       //at (0,0,0)
+                          dim,            //its logical volume,
+                          logicWorld,                     //its mother  volume
+                          false,i,this);
+    }
+    for(int i = 0; i < numstrips; i++)//place second layer
+    {
+      G4RotationMatrix* rmx = new G4RotationMatrix();
+      rmx->rotateZ(90*deg);
+      G4VPhysicalVolume* physScint = 
+      new MDScintillatorBlock(rmx,                     //no rotation
+                        G4ThreeVector((xdim)/2-i*ydim-ydim/2+currpos[0],0+currpos[1],-ydim/2+currpos[2]-0.1*mm),       //at (0,0,0)
+                        dim,            //its logical volume,
+                        logicWorld,                     //its mother  volume
+                        false,i,this);
+    }
+
+    //now make the block on the negative side
+    for(int i = 0; i < numstrips; i++)
+    {
+
+      G4VPhysicalVolume* physScint = 
+        new MDScintillatorBlock(0,                     //no rotation
+                          G4ThreeVector(0+currpos[0],(xdim)/2-i*ydim-ydim/2+currpos[1],ydim/2-currpos[2]+0.1*mm),       //at (0,0,0)
+                          dim,            //its logical volume,
+                          logicWorld,                     //its mother  volume
+                          false,i,this);
+    }
+    for(int i = 0; i < numstrips; i++)
+    {
+      G4RotationMatrix* rmx = new G4RotationMatrix();
+      rmx->rotateZ(90*deg);
+      G4VPhysicalVolume* physScint = 
+      new MDScintillatorBlock(rmx,                     //no rotation
+                        G4ThreeVector((xdim)/2-i*ydim-ydim/2+currpos[0],0+currpos[1],-ydim/2-currpos[2]-0.1*mm),       //at (0,0,0)
+                        dim,            //its logical volume,
+                        logicWorld,                     //its mother  volume
+                        false,i,this);
+    }
+
+  }
+
+}
+
+G4Material* MDDetectorConstruction::GetVaccuumMaterial()
+{
+
+	G4double vacuum_Energy[]={2.0*eV,7.0*eV,7.14*eV};
+
+	const G4int vacnum = sizeof(vacuum_Energy)/sizeof(G4double);
+	G4double vacuum_RIND[]={1.,1.,1.}; //define the refractive index
+
+	G4MaterialPropertiesTable *vacuum_mt = new G4MaterialPropertiesTable();
+	vacuum_mt->AddProperty("RINDEX", vacuum_Energy, vacuum_RIND,vacnum);//add the refractive index into the list of material properties
+	vacuum->SetMaterialPropertiesTable(vacuum_mt);
+	return vacuum;
 }
 
 G4Material* MDDetectorConstruction::GetScintillatorMaterial()
-{ 
+{
   G4NistManager* mat = G4NistManager::Instance();
   G4Material *pstyrene = mat->FindOrBuildMaterial("G4_POLYSTYRENE");//the base material is polysterene
 
@@ -173,81 +250,4 @@ G4Material* MDDetectorConstruction::GetScintillatorMaterial()
   s_mt->AddConstProperty("FASTTIMECONSTANT", 10.*ns); //add yield ratio of 1
   pstyrene->SetMaterialPropertiesTable(s_mt);
   return pstyrene;
-}
-
-void MDDetectorConstruction::SetScintillators()
-{
-
-//rather than create a whole another class, a series of for loops is used to place the scintillators
-  //this is due to the fact that it will be much easier to recover the position in this way using the 
-  //built in geant4 systems
-  for(int j = 0; j<nummodules; ++j)//master for loop that runs through the number of times the modules should be placed
-  {
-    G4ThreeVector currpos = positions[j];
-
-    for(int i = 0; i < numstrips; i++)//place first layer
-    {
-
-      G4VPhysicalVolume* physScint = 
-        new G4PVPlacement(0,                     //no rotation
-                          G4ThreeVector(0+currpos[0],(xdim)/2-i*ydim-ydim/2+currpos[1],ydim/2+currpos[2]),       //at (0,0,0)
-                          logicScint,            //its logical volume
-                          "scintillator",               //its name
-                          logicWorld,                     //its mother  volume
-                          false,i);  
-    }
-    for(int i = 0; i < numstrips; i++)//place second layer
-    {
-      G4RotationMatrix* rmx = new G4RotationMatrix();
-      rmx->rotateZ(90*deg);
-      G4VPhysicalVolume* physScint = 
-      new G4PVPlacement(rmx,                     //no rotation
-                        G4ThreeVector((xdim)/2-i*ydim-ydim/2+currpos[0],0+currpos[1],-ydim/2+currpos[2]),       //at (0,0,0)
-                        logicScint,            //its logical volume
-                        "scintillator",               //its name
-                        logicWorld,                     //its mother  volume
-                        false,i);
-    }
-
-    //now make the block on the negative side
-    for(int i = 0; i < numstrips; i++)
-    {
-
-      G4VPhysicalVolume* physScint = 
-        new G4PVPlacement(0,                     //no rotation
-                          G4ThreeVector(0+currpos[0],(xdim)/2-i*ydim-ydim/2+currpos[1],ydim/2-currpos[2]),       //at (0,0,0)
-                          logicScint,            //its logical volume
-                          "scintillator",               //its name
-                          logicWorld,                     //its mother  volume
-                          false,i);  
-    }
-    for(int i = 0; i < numstrips; i++)
-    {
-      G4RotationMatrix* rmx = new G4RotationMatrix();
-      rmx->rotateZ(90*deg);
-      G4VPhysicalVolume* physScint = 
-      new G4PVPlacement(rmx,                     //no rotation
-                        G4ThreeVector((xdim)/2-i*ydim-ydim/2+currpos[0],0+currpos[1],-ydim/2-currpos[2]),       //at (0,0,0)
-                        logicScint,            //its logical volume
-                        "scintillator",               //its name
-                        logicWorld,                     //its mother  volume
-                        false,i);
-    }
-
-  }
-
-}
-
-G4Material* MDDetectorConstruction::GetVaccuumMaterial()
-{
-
-	G4double vacuum_Energy[]={2.0*eV,7.0*eV,7.14*eV};
-
-	const G4int vacnum = sizeof(vacuum_Energy)/sizeof(G4double);
-	G4double vacuum_RIND[]={1.,1.,1.}; //define the refractive index
-
-	G4MaterialPropertiesTable *vacuum_mt = new G4MaterialPropertiesTable();
-	vacuum_mt->AddProperty("RINDEX", vacuum_Energy, vacuum_RIND,vacnum);//add the refractive index into the list of material properties
-	vacuum->SetMaterialPropertiesTable(vacuum_mt);
-	return vacuum;
 }
