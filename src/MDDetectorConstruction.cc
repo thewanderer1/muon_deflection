@@ -58,7 +58,7 @@ MDDetectorConstruction::MDDetectorConstruction(int nummodules,G4ThreeVector dim,
 	logicscint->SetSensitiveDetector(mds);
 
 	G4VisAttributes *gva = new G4VisAttributes(G4Colour::Green());
-	G4VisAttributes *gvb = new G4VisAttributes(G4Colour::Magenta());
+	G4VisAttributes *gvb = new G4VisAttributes(G4VisAttributes::Invisible);
 
 	logicscint->SetVisAttributes(gva);
 	logichousing->SetVisAttributes(gvb);
