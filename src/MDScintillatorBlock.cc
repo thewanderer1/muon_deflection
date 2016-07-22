@@ -34,10 +34,14 @@ xdim(dimensions[0]),
 ydim(dimensions[1]),
 zdim(dimensions[2])
 {
-	G4PVPlacement* physscint = new G4PVPlacement(0,G4ThreeVector(0,0,0),detector->logicscint,"scint_block",detector->logichousing,false,0);
+	physscint = new G4PVPlacement(0,G4ThreeVector(0,0,0),detector->logicscint,"scint_block",detector->logichousing,false,0);
 
 	SetLogicalVolume(detector->logichousing);
 
+}
+
+void MDScintillatorBlock::SetSurfProps()
+{
 	G4OpticalSurface* scintWrap = new G4OpticalSurface("ScintWrap");
 	new G4LogicalBorderSurface("ScintWrap", physscint,
                                this,

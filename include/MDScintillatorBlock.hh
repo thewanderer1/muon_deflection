@@ -21,6 +21,8 @@ private:
 	G4double xdim;
 	G4double ydim;
 	G4double zdim;
+	void SetSurfProps();
+	G4PVPlacement* physscint;
 };
 
 #endif /* INCLUDE_MDSCINTILLATORBLOCK_HH_ */
