@@ -1,3 +1,4 @@
+GEANT4 SIMULATION-
 
 As of now, there are 8 header files and 8 source files, organized into include and src folders respectively. There is also one file that has the main method,
 called muondeflection.cc. The file called CMakeLists.txt is in the folder as well, and it is used by CMake to generate the makefile. 
@@ -25,7 +26,7 @@ Once the configure script has sucessfully completed, run the make utility:
 
 HOW TO RUN:
 
-Once the program has sucessfully compiled, you must create an initialization file. It is recommended that you name your file init.txt. 
+Once the program has sucessfully compiled, you must create an initialization file. In this example, this file is named init.txt. 
 
 This is a csv style document. On every line, there should just be the variable name, followed by the value (no space).
 The next variable should be on the next line and so on.
@@ -33,7 +34,7 @@ The next variable should be on the next line and so on.
 The following is an example of what an initialization file would look like. The text in parentheses
 are just comments and should not be included:
 
-
+numEvents,35000			(the number of events)
 stripXYZ,10,1,1       (xyz dimension of a single strip)
 numModules,2          (number of modules above the unknown object. The total number of modules will be 2x this number)
 posXYZ1,0,0,0          (position coordinates for each slab, in x, y and z. the number of position variables you have 
@@ -54,37 +55,82 @@ The position should be based on the geant4 coordinate system positions. This mea
 at the points you specify.
 
 
-Now run the program using the following command.
+Now you must make a file to specify what will be in the container area. For the purposes of this example it will be named heavyblocks.txt
 
-	$ ./muondeflection init.txt
+The first element should be the shape type (rectangleular - which will create a rectangular prism or cylinder),
+followed by the name of the material in the geant4 system. Next, in the case of a rectangular prism are the x,y and z dimensions,
+or in the case of a cylinder, the rotation around the x axis in degrees, followed by the radius and the height.
+This is followed by the position of the object in Geant4 coordinate system in relation to the world volume.
+All of these should be on one line, seperated by a comma.
 
+An example of what the contents should look like is shown below:
+
+rectangle,G4_U,100,200,5,0,0,-50
+cylinder,G4_Pb,90,100,5,0,0,70
 
 
 Also, ensure that the two macros, init_vis.mac and vis.mac are in the build folder. They are necessary for visualization. The program will call these files to run visualization.
 
+To run the program, you must specify one of two options: either -ui or -run. If you use the option -ui, it will initialize the simulation and then attempt to bring up the visualization ui, and if that fails, it will bring up the command line ui. If you use -run, then it will initialize the simulation and immediately run the number of 
+events specified in init.txt
 
-Once the program has started running, switch to the Geant4 console window. Type in the command:
+Example:
 
-/vis/viewer/set/viewpointThetaPhi 70 20
+./muondeflection -ui init.txt heavyblocks.txt
 
-and hit enter. This will move the camera to a 3-D polar coordinate theta angle of 70 degrees and a phi angle of 20 degrees. To change to another angle, simply use the same command with the theta and phi values required. 
+Please see the Geant4 website for a tutorial on how to use the Geant4 ui.
 
-To begin a run, type in the following command:
+The simulation will look for a file in its current folder called run_number.txt. If that does not exist, then it will create one with the inital value set to zero.
+If it does, it will increment the value stored in it. Then it will read that number and create two output files. 
 
-/run/beamOn 1
+For example, if the run number is XXXX, it will create two files RunNumber_XXXX_runinfo.csv and RunNumber_XXXX_photoninfo.csv
 
-This will run one event, which consists of 1000 muons. This may take up to five minutes to run.
+This is a csv file, when opened in a spreadsheet application, this is what it contains.
 
-This will generate several output files, but the output file that contains all the hit data is called "runinfo.csv".
+	Column 	1:		Event No.
+			2-4:	x,y,z components of the momentum when entering the top strip
+			5-7:	x,y,z components of the momentum when exiting the top strip
+			8-10:	x,y,z components of the momentum when exiting the bottom strip
+			11:		X coordinate of the center of the top strip
+			12:		Y coordinate of the center of the bottom strip
+			13:		Z coordinate of the center of the module
+			14-16:	X,y,z of the entry point of the top strip
+			17-19:	X,y,z of the entry point of the bottom strip
+			20-22:	X,y,z of the exit point of the bottom strip
+			23:		Particle name	
 
-This file stores the values of the data members of each hit. The variables are written in the order below:
 
-initalKE,finalKE,currentKE,x,y,z,actualyhitpt[0],actualyhitpt[1],actualyhitpt[2],actualxhitpt[0],actualxhitpt[1],actualxhitpt[2],trackID
 
-The initialKE is the inital kinectic energy of the muon as it enters the top scintillator strip of the module, currentKE is the energy 
-of the muon as it exits the top strip and enters the bottom strip, and finalKE is the KE of the muon as it exits the bottom strip. The x,y and z
-coordinates represent the coordinates of that hit as is needed for track reconstruction. The actualyhitpt and actualxhitpt represent the
-coordinates of the muon as it enters the top strip and as it enters the bottom strip, respectively. These variables' x,y and z coordinates
-are accessed through the [] operator. X is [0], y is [1] and z is [2]. Finally, the trackID is the ID number of the muon whose hit this belongs to.
+ROOT MACROS-
 
-The file "debug.txt" has useful debug information, but is not necessary for the user.
+There are two macros that are used: Analyze.c and Plot2DSlices.c
+
+You must run Analyze.c first. For each event, it fits the top and bottom lines and figures out the imapact parameter, as well as the deflection angle.
+
+To run it, for a run with a run number of XXXX, ensure that RunNumber_XXXX_runinfo.csv is in the same folder.
+
+Then run:
+
+	$ root -L Analyze.c\(XXX\)
+
+This will create a file called RunNumber_XXXX_fitdata.csv with all of its data. It will also display a 3D histogram. In each bin of the histogram,
+the average deflection angle is calculated.
+
+This is a csv file, when opened in a spreadsheet application, this is what it contains.
+
+	Column 	1: 		Cosine of the deflection angle
+			2: 		Deflection angle (degrees)
+			3-5: 	x,y,z of the impact parameter
+			6-8: 	x,y,z of the closest point on line 1
+			9-11:	x,y,z of the closest point on line 2
+			12:		distance between the closest points
+
+Now, you can use Plot2DSlices.c to make 2D slices at any Z location. 
+Given z value AAA, it will create a 2D histogram in the XY plane for that z value and will plot the nearby impact parameters onto that plane.
+The end result will be a 2D histogram with the average value of the deflection angle for each XY bin.
+
+To use it, pass it the run number and an array of Z values at which to take the slices (in this example, assume the values are AAA and BBB)
+
+Run:
+
+	$ root -L Plot2DSlices.c\(XXX,\{AAA,BBB\}\)

@@ -39,7 +39,7 @@ MDPrimaryGeneratorAction::MDPrimaryGeneratorAction() :
 
   	fParticleGun->SetParticleDefinition(muon);
 
-  	fParticleGun->SetParticleEnergy(1500*MeV);
+  	fParticleGun->SetParticleEnergy(1900*MeV);
 
  	G4ThreeVector position = GetRandPos();
  	G4ThreeVector momentum = GetRandMomentumVector(position);
