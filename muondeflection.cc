@@ -282,7 +282,7 @@ void ReadFileAndCreateDetectorGeometry(std::ifstream& file, std::ifstream& dense
         exit(1);
       }
     }
-    else if((((((((((fileinfo[i] == "posXYZ1")||fileinfo[i] == "posXYZ2")||fileinfo[i] == "posXYZ3")||fileinfo[i] == "posXYZ4")||fileinfo[i] == "posXYZ5")||fileinfo[i] == "posXYZ6")||fileinfo[i] == "posXYZ7")||fileinfo[i] == "posXYZ8")||fileinfo[i] == "posXYZ9"))
+    else if(((((((((((fileinfo[i] == "posXYZ1")||fileinfo[i] == "posXYZ2")||fileinfo[i] == "posXYZ3")||fileinfo[i] == "posXYZ4")||fileinfo[i] == "posXYZ5")||fileinfo[i] == "posXYZ6")||fileinfo[i] == "posXYZ7")||fileinfo[i] == "posXYZ8")||fileinfo[i] == "posXYZ9")||fileinfo[i] == "posXYZ10"))
     {
       currentposition[0] = std::stoi(fileinfo[i+1])*cm;
       currentposition[1] = std::stoi(fileinfo[i+2])*cm;

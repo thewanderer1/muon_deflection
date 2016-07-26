@@ -1,78 +1,92 @@
 GEANT4 SIMULATION-
 
-As of now, there are 8 header files and 8 source files, organized into include and src folders respectively. There is also one file that has the main method,
-called muondeflection.cc. The file called CMakeLists.txt is in the folder as well, and it is used by CMake to generate the makefile. 
+As of now, there are 8 header files and 8 source files, organized into include 
+and src folders respectively. There is also one file that has the main method,
+called muondeflection.cc. The file called CMakeLists.txt is in the folder as 
+well, and it is used by CMake to generate the makefile. 
 
 HOW TO COMPILE:
 
-Run:
+Setup GEANT4 environment:
+  $ cd /path_to_geant4_installation_directory/bin/
+  $ source geant4.sh
 
-	$ cd /home/shantam/summer2016research/geant4.10.02-install-qt/bin/
-	$ source geant4.sh
+For the purposes of this example, assume the source code is in a file called muon_deflection.
+To generate the makefile:
+  $ ls
+  muon_deflection
 
-Now run:
+  $ mkdir muon_deflection_build
+  $ cd muon_deflection_build
+  $ cmake -DGeant4_DIR=/path_to_geant4_installation_directory/lib/Geant4-10.2.1 ../muon_deflection
 
-	$ cd /home/shantam/summer2016research/
-	$ mkdir muon_deflection_build
-	$ cd muon_deflection_build
+To generate executable file: 
+  $ make -j8
 
-Run:
-
-	$ cmake -DGeant4_DIR=/home/shantam/summer2016research/geant4.10.02-install-qt/lib/Geant4-10.2.1 ../muon_deflection
-
-Once the configure script has sucessfully completed, run the make utility:
-
-	$ make -j8
+This will build the executable, muondeflection in the build folder.
 
 HOW TO RUN:
 
-Once the program has sucessfully compiled, you must create an initialization file. In this example, this file is named init.txt. 
+Once the program has successfully compiled, you must create an initialization file
+in directory muon_deflection_build. In this example, this file is named 
+init.txt. This is a csv style document. On every line, there should just be the 
+variable name, followed by the value (no space). The next variable should be on 
+the next line and so on.
 
-This is a csv style document. On every line, there should just be the variable name, followed by the value (no space).
-The next variable should be on the next line and so on.
+The following is an example of what an initialization file would look like. The 
+text in parentheses are just comments and should not be included:
 
-The following is an example of what an initialization file would look like. The text in parentheses
-are just comments and should not be included:
+(Begin File)
+numEvents,35000	      (the number of events)
+stripXYZ,10,1,1       (xyz dimension of a single strip in cm)
+numModules,5          (number of modules above the unknown object. The total number of modules will be 2x this number)
+posXYZ1,0,0,300       (position coordinates for each slab, in x, y and z. the number of position variables you have 
+posXYZ2,0,0,250        should be equal to numModules)
+posXYZ3,0,0,200
+posXYZ4,0,0,150
+posXYZ5,0,0,50
+(End File)
 
-numEvents,35000			(the number of events)
-stripXYZ,10,1,1       (xyz dimension of a single strip)
-numModules,2          (number of modules above the unknown object. The total number of modules will be 2x this number)
-posXYZ1,0,0,0          (position coordinates for each slab, in x, y and z. the number of position variables you have 
-posXYZ2,0,0,5			should be equal to numModules)
 
+The variables can be in any order, but must all appear before the start of 
+the position variables. 
 
+ALL UNITS ARE IN CENTEMETERS. 
 
-The variables can be in any order, but must all appear before the start of the position variables.
+You must ENSURE THAT THE LONGEST DIMENSION FOR THE STRIP IS THE X DIMENSION. 
 
-ALL UNITS ARE IN CENTEMETERS
-
-ENSURE THAT THE LONGEST DIMENSION FOR THE STRIP IS THE X DIMENSION.
-
-The position coordinates should only be for the modules above the unknown (positive Z). The program will mirror these coordinates for the
-modules below (negative Z).
-
-The position should be based on the geant4 coordinate system positions. This means that the exact 3-D center of the module will be located
+The position should be based on the geant4 coordinate system positions. 
+This means that the geometric center of the module will be located
 at the points you specify.
 
+Now you must make a file in the directory muon_deflection_build to specify what 
+will be in the container area. For the purposes of this example it will be 
+named heavyblocks.txt.
 
-Now you must make a file to specify what will be in the container area. For the purposes of this example it will be named heavyblocks.txt
+The first element should be the shape type (rectangle or cylinder)), followed by the name of the material in the 
+geant4 system. Next, in the case of a rectangular prism are the x,y and z 
+dimensions, or in the case of a cylinder, the rotation around the x axis in 
+degrees, followed by the radius and the height. This is followed by the 
+position of the object in Geant4 coordinate system in relation to the world 
+volume. All of these should be on one line, separated by a comma.
 
-The first element should be the shape type (rectangleular - which will create a rectangular prism or cylinder),
-followed by the name of the material in the geant4 system. Next, in the case of a rectangular prism are the x,y and z dimensions,
-or in the case of a cylinder, the rotation around the x axis in degrees, followed by the radius and the height.
-This is followed by the position of the object in Geant4 coordinate system in relation to the world volume.
-All of these should be on one line, seperated by a comma.
-
-An example of what the contents should look like is shown below:
+An example of what the contents should look like is shown below.
+Use a # to denote a comment:
 
 rectangle,G4_U,100,200,5,0,0,-50
 cylinder,G4_Pb,90,100,5,0,0,70
+#this is a comment
 
 
-Also, ensure that the two macros, init_vis.mac and vis.mac are in the build folder. They are necessary for visualization. The program will call these files to run visualization.
+Also, ensure that the two macros, init_vis.mac and vis.mac are present in the 
+build folder. Though these are not necessary for visualization, they are useful to have. 
+The program will call these files to run visualization.
 
-To run the program, you must specify one of two options: either -ui or -run. If you use the option -ui, it will initialize the simulation and then attempt to bring up the visualization ui, and if that fails, it will bring up the command line ui. If you use -run, then it will initialize the simulation and immediately run the number of 
-events specified in init.txt
+To run the program, you must specify one of two options: either -ui or -run. If 
+you use the option -ui, it will initialize the simulation and then attempt to 
+bring up the visualization ui, and if that fails, it will bring up the command 
+line ui. If you use -run, then it will initialize the simulation and 
+immediately run the number of events specified in init.txt
 
 Example:
 
@@ -80,57 +94,63 @@ Example:
 
 Please see the Geant4 website for a tutorial on how to use the Geant4 ui.
 
-The simulation will look for a file in its current folder called run_number.txt. If that does not exist, then it will create one with the inital value set to zero.
-If it does, it will increment the value stored in it. Then it will read that number and create two output files. 
+The simulation will look for a file in its current folder called run_number.txt. 
+If that does not exist, then it will create one with the initial value set to 
+zero. If it does, it will increment the value stored in it. Then it will read 
+that number and create two output files. 
 
-For example, if the run number is XXXX, it will create two files RunNumber_XXXX_runinfo.csv and RunNumber_XXXX_photoninfo.csv
+For example, if the run number is XXXX, it will create two files 
+RunNumber_XXXX_runinfo.csv and RunNumber_XXXX_photoninfo.csv
 
-This is a csv file, when opened in a spreadsheet application, this is what it contains.
+This is a csv file, when opened in a spreadsheet application, will look like this.
 
-	Column 	1:		Event No.
-			2-4:	x,y,z components of the momentum when entering the top strip
-			5-7:	x,y,z components of the momentum when exiting the top strip
-			8-10:	x,y,z components of the momentum when exiting the bottom strip
-			11:		X coordinate of the center of the top strip
-			12:		Y coordinate of the center of the bottom strip
-			13:		Z coordinate of the center of the module
-			14-16:	X,y,z of the entry point of the top strip
-			17-19:	X,y,z of the entry point of the bottom strip
-			20-22:	X,y,z of the exit point of the bottom strip
-			23:		Particle name	
+Column 	01: Event No.
+	02-04:	x,y,z components of the momentum when entering the top strip
+	05-07:	x,y,z components of the momentum when exiting the top strip
+	08-00:	x,y,z components of the momentum when exiting the bottom strip
+	11:	X coordinate of the center of the top strip
+	12:	Y coordinate of the center of the bottom strip
+	13:	Z coordinate of the center of the module
+	14-16:	X,y,z of the entry point of the top strip
+	17-19:	X,y,z of the entry point of the bottom strip
+	20-22:	X,y,z of the exit point of the bottom strip
+	23:	Particle name	
 
 
 
-ROOT MACROS-
+ROOT MACROS:
+There are two macros that are used: Analyze.c and Plot2DSlices.c. You must run 
+Analyze.c first. For each event, it fits the top and bottom lines and figures 
+out the imapact parameter, as well as the deflection angle.
 
-There are two macros that are used: Analyze.c and Plot2DSlices.c
-
-You must run Analyze.c first. For each event, it fits the top and bottom lines and figures out the imapact parameter, as well as the deflection angle.
-
-To run it, for a run with a run number of XXXX, ensure that RunNumber_XXXX_runinfo.csv is in the same folder.
+To run it, for a run with a run number of XXXX, ensure that 
+RunNumber_XXXX_runinfo.csv is in the same folder.
 
 Then run:
+  $ root -L Analyze.c\(XXX\)
 
-	$ root -L Analyze.c\(XXX\)
+This will create a file called RunNumber_XXXX_fitdata.csv with all of its data. 
+It will also display a 3D histogram. In each bin of the histogram, the average 
+deflection angle is calculated.
 
-This will create a file called RunNumber_XXXX_fitdata.csv with all of its data. It will also display a 3D histogram. In each bin of the histogram,
-the average deflection angle is calculated.
+This is a csv file, when opened in a spreadsheet application, this is what it 
+contains.
 
-This is a csv file, when opened in a spreadsheet application, this is what it contains.
-
-	Column 	1: 		Cosine of the deflection angle
-			2: 		Deflection angle (degrees)
-			3-5: 	x,y,z of the impact parameter
-			6-8: 	x,y,z of the closest point on line 1
-			9-11:	x,y,z of the closest point on line 2
-			12:		distance between the closest points
+  Column   1:     Cosine of the deflection angle
+           2:     Deflection angle (degrees)
+           03-05: x,y,z of the impact parameter
+           06-08: x,y,z of the closest point on line 1
+           09-11: x,y,z of the closest point on line 2
+           12:    distance between the closest points
 
 Now, you can use Plot2DSlices.c to make 2D slices at any Z location. 
-Given z value AAA, it will create a 2D histogram in the XY plane for that z value and will plot the nearby impact parameters onto that plane.
-The end result will be a 2D histogram with the average value of the deflection angle for each XY bin.
+Given z value AAA, it will create a 2D histogram in the XY plane for that z 
+value and will plot the nearby impact parameters onto that plane. The end result 
+will be a 2D histogram with the average value of the deflection angle for each 
+XY bin.
 
-To use it, pass it the run number and an array of Z values at which to take the slices (in this example, assume the values are AAA and BBB)
+To use it, pass it the run number and an array of Z values at which to take the 
+slices (in this example, assume the values are AAA and BBB)
 
 Run:
-
-	$ root -L Plot2DSlices.c\(XXX,\{AAA,BBB\}\)
+  $ root -L Plot2DSlices.c\(XXX,\{AAA,BBB\}\)

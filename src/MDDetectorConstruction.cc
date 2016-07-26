@@ -208,7 +208,7 @@ void MDDetectorConstruction::SetScintillators()
                         logicWorld,                     //its mother  volume
                         false,i);
     }
-
+/*
     //now make the block on the negative side
     for(int i = 0; i < numstrips; i++)
     {
@@ -232,7 +232,7 @@ void MDDetectorConstruction::SetScintillators()
                         "scintillator",               //its name
                         logicWorld,                     //its mother  volume
                         false,i);
-    }
+    }*/
 
   }
 
