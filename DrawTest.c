@@ -120,6 +120,7 @@ int DrawTest()
 	LineFit lf(dt);
 	LineFit lf2(dt2);
 
+
 	ROOT::Fit::Fitter  fitter;
 
 	#ifdef __CINT__
@@ -140,20 +141,35 @@ int DrawTest()
 	int lastpt = dt->GetN() - 1;
 
 	XYZVector firstpt(x1[0],y1[0],z1[0]);
+	cout<<"first approx"<<endl;
+	
 	
 	XYZVector secondpt(x1[lastpt],y1[lastpt],z1[lastpt]);
 
 	XYZVector dir = secondpt - firstpt; 
 
-	double paramstart[6] = {secondpt.x(),secondpt.y(),secondpt.z(),dir.x(),dir.y(),dir.z()};
+	double paramstart[6] = {firstpt.x(),firstpt.y(),firstpt.z(),dir.x(),dir.y(),dir.z()};
 
 	int n = 10000;
 
-
+	cout<<x1[0]<<","<<y1[0]<<","<<z1[0]<<","<<dir.x()<<","<<dir.y()<<","<<dir.z()<<endl;
 
 	fitter.SetFCN(fcn,paramstart);
 
-	for (int i = 0; i < 6; ++i) fitter.Config().ParSettings(i).SetStepSize(0.01);
+
+	double delta1 = 5;
+	double delta2 = 8;
+	for (int i = 0; i < 6; ++i) fitter.Config().ParSettings(i).SetStepSize(0.001);
+
+	
+	fitter.Config().ParSettings(3).SetLimits(dir.x()-delta2,dir.x()+delta2);
+	fitter.Config().ParSettings(4).SetLimits(dir.y()-delta2,dir.y()+delta2);
+	fitter.Config().ParSettings(5).SetLimits(dir.z()-delta2,dir.z()+delta2);
+	
+	fitter.Config().ParSettings(0).SetLimits(firstpt.x()-delta1,firstpt.x()+delta1);
+	fitter.Config().ParSettings(1).SetLimits(firstpt.y()-delta1,firstpt.y()+delta1);
+	fitter.Config().ParSettings(2).SetLimits(firstpt.z()-delta1,firstpt.z()+delta1);
+
 
 	bool ok = fitter.FitFCN();
 
@@ -164,7 +180,7 @@ int DrawTest()
 
 	const ROOT::Fit::FitResult & result = fitter.Result();
 
-	std::cout << "Total final distance square " << result.MinFcnValue() << std::endl;
+	std::cout << "Final chi2 val " << result.MinFcnValue() << std::endl;
 	result.Print(std::cout);
 
 	dt->Draw("P");
@@ -186,7 +202,7 @@ int DrawTest()
 
 	
 	double t0 = 0;
-	double dtl = -250;
+	double dtl = 250;
 	TPolyLine3D *l = new TPolyLine3D(n);
 	for (int i = 0; i <n;++i) {
 	   double t = t0+ dtl*i/n;
@@ -212,13 +228,23 @@ int DrawTest()
 
 	XYZVector dir2 = secondpt2 - firstpt2; 
 
-	double paramstart2[6] = {secondpt2.x(),secondpt2.y(),secondpt2.z(),dir2.x(),dir2.y(),dir2.z()};
+	double paramstart2[6] = {firstpt2.x(),firstpt2.y(),firstpt2.z(),dir2.x(),dir2.y(),dir2.z()};
 
+	cout<<"second"<<endl;
+	cout<<x2[0]<<","<<y2[0]<<","<<z2[0]<<","<<dir2.x()<<","<<dir2.y()<<","<<dir2.z()<<endl;
 	
 
 	fitter.SetFCN(fcn2,paramstart2);
 
 	for (int i = 0; i < 6; ++i) fitter.Config().ParSettings(i).SetStepSize(0.01);
+	
+	fitter.Config().ParSettings(3).SetLimits(dir2.x()-delta2,dir2.x()+delta2);
+	fitter.Config().ParSettings(4).SetLimits(dir2.y()-delta2,dir2.y()+delta2);
+	fitter.Config().ParSettings(5).SetLimits(dir2.z()-delta2,dir2.z()+delta2);
+	
+	fitter.Config().ParSettings(0).SetLimits(firstpt2.x()-delta1,firstpt2.x()+delta1);
+	fitter.Config().ParSettings(1).SetLimits(firstpt2.y()-delta1,firstpt2.y()+delta1);
+	fitter.Config().ParSettings(2).SetLimits(firstpt2.z()-delta1,firstpt2.z()+delta1);
 
 	bool ok1 = fitter.FitFCN();
 
@@ -288,7 +314,7 @@ int DrawTest()
 	tb->SetFillColor(2);
 	tb->Draw("same");
 	return 0;*/
-
+/*
 	TPolyMarker3D *tpd = new TPolyMarker3D();
 	//double x,y,z;
 	//line1(ipfparams[0],parFit1,x,y,z);
@@ -345,6 +371,6 @@ int DrawTest()
 	double *solns = xzcoeffs.GetMatrixArray();
 
 	cout<<solns[1]<<','<<solns[2]<<endl;
-
+*/
 	return 0;
 }

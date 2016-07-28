@@ -57,6 +57,9 @@ ALL UNITS ARE IN CENTEMETERS.
 
 You must ENSURE THAT THE LONGEST DIMENSION FOR THE STRIP IS THE X DIMENSION. 
 
+AVOID LEAVING STRAY WHITESPACE AT THE ENDS OF THE LINES OR AT THE END OF THE FILE
+AS THIS MAY CAUSE THE PROGRAM TO CRASH
+
 The position should be based on the geant4 coordinate system positions. 
 This means that the geometric center of the module will be located
 at the points you specify.
@@ -78,9 +81,11 @@ Use a # to denote a comment:
 #begin file
 rectangle,G4_U,100,200,5,0,0,-50
 cylinder,G4_Pb,90,100,5,0,0,70
-#end file
 #this is a comment
+#end file
 
+AVOID LEAVING STRAY WHITESPACE AT THE ENDS OF THE LINES OR AT THE END OF THE FILE
+AS THIS MAY CAUSE THE PROGRAM TO CRASH
 
 Also, ensure that the two macros, init_vis.mac and vis.mac are present in the 
 build folder. Though these are not necessary for visualization, they are useful to have. 

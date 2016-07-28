@@ -57,7 +57,7 @@ void Analyze(const int runnumber)
 	TGraph2D *impactpoints = new TGraph2D();
 	TH1D *h1 = new TH1D("distr","Distribution of deflection angles",70,0,10);
 	TH1D *impactdists = new TH1D("impact dists","Distribution of impact Distances",500,0,5);
-	TH3D *values = new TH3D("impactposvsangle","Impact Positions",60,-250,250,60,-250,250,31,-100,100);
+	TH3D *values = new TH3D("impactposvsangle","Impact Positions",60,-250,250,60,-250,250,30,-100,100);
 	//rebin the last if using different materials
 	int impactpointscounter = 0;
 	std::string flname = "RunNumber_";
@@ -177,21 +177,21 @@ void Analyze(const int runnumber)
 
 			if(((impactpt.z() < 100 && impactpt.z() > -100) && (impactpt.x() < 250 && impactpt.x() > -250))&&(impactpt.y() < 250 && impactpt.y() > -250))
 			{
-				if((sqrt((impactpt-c1).Mag2())*2) <0.5)// && (acos(dp)*180/PI) > 2.5)
+				if((sqrt((impactpt-c1).Mag2())*2) <0.4 && (acos(dp)*180/PI) > 0.6)
 				{
 					impactpoints->SetPoint(impactpointscounter,impactpt.x(),impactpt.y(),impactpt.z());
 					impactpointscounter++;
 					h1->Fill(acos(dp)*180/PI);
 
-					int xbin = (int) (impactpt.x() + 250)/(500./ (double) 60.);
-					int ybin = (int) (impactpt.y() + 250)/(500./ (double) 60.); 
-					int zbin = (int) (impactpt.z() + 100)/(200./ (double) 30.);
+					int xbin = (int) (impactpt.x() + 250)/(500./ (double) 60.) +1;
+					int ybin = (int) (impactpt.y() + 250)/(500./ (double) 60.) + 1; 
+					int zbin = (int) (impactpt.z() + 100)/(200./ (double) 30.) + 1;
 					values->SetBinContent(xbin,ybin,zbin,values->GetBinContent(xbin,ybin,zbin) + acos(dp)*180/PI);
 				}
 
 			}
 
-			fitinfo<<dp<<','<<acos(dp)*180/PI<<','<<impactpt.x()<<','<<impactpt.y()<<','<<impactpt.z()<<','<<c1.x()<<','<<c1.y()<<','<<c1.z()<<','<<c2.x()<<','<<c2.y()<<','<<c2.z()<<','<<sqrt(impactpt.Mag2())*2<<endl;
+			fitinfo<<dp<<','<<acos(dp)*180/PI<<','<<impactpt.x()<<','<<impactpt.y()<<','<<impactpt.z()<<','<<c1.x()<<','<<c1.y()<<','<<c1.z()<<','<<c2.x()<<','<<c2.y()<<','<<c2.z()<<','<<(sqrt((impactpt-c1).Mag2())*2)<<endl;
 			
 			impactdists->Fill(sqrt((impactpt-c1).Mag2())*2);
 
@@ -278,44 +278,63 @@ void Fit(TGraph2D *tg, int num)
 
    	fitter.SetFCN(fcn,paramstart);
 
-   	for (int i = 0; i < 6; ++i) fitter.Config().ParSettings(i).SetStepSize(0.01);
+   	for (int i = 0; i < 6; ++i) fitter.Config().ParSettings(i).SetStepSize(0.001);
+   	fitter.Config().ParSettings(5).SetLimits(-7000,0);
+   	fitter.Config().ParSettings(3).SetLimits(-1000,1000);
+   	fitter.Config().ParSettings(4).SetLimits(-1000,1000);
+   	fitter.Config().ParSettings(2).SetLimits(-4000,4000);
+   	fitter.Config().ParSettings(0).SetLimits(-500,500);
+   	fitter.Config().ParSettings(1).SetLimits(-500,500);
+
+   	cout<<"par errors"<<endl;
 
    	bool ok = fitter.FitFCN();
 
    	if (!ok) {
-   		
-   	   //Error("line3Dfit","Line3D Fit failed");
-   	  cout<<"trying again"<<endl;
+   		exit(1);
+		//Error("line3Dfit","Line3D Fit failed");
+		cout<<"trying again"<<endl;
 
-   	  XYZVector dir2(-dir.x(),-dir.y(),-dir.z());
+		XYZVector dir2(-dir.x(),-dir.y(),-dir.z());
 
-   	  double paramstart2[6] = {secondpt.x(),secondpt.y(),secondpt.z(),dir2.x(),dir2.y(),dir2.z()};
+		double paramstart2[6] = {secondpt.x(),secondpt.y(),secondpt.z(),dir2.x(),dir2.y(),dir2.z()};
 
-   	  fitter.SetFCN(fcn,paramstart2);
+		fitter.SetFCN(fcn,paramstart2);
 
-   	  for (int i = 0; i < 6; ++i) fitter.Config().ParSettings(i).SetStepSize(0.01);
+		for (int i = 0; i < 6; ++i) fitter.Config().ParSettings(i).SetStepSize(0.001);
+		fitter.Config().ParSettings(5).SetLimits(-7000,0);
+		fitter.Config().ParSettings(3).SetLimits(-1000,1000);
+		fitter.Config().ParSettings(4).SetLimits(-1000,1000);
+		fitter.Config().ParSettings(2).SetLimits(-4000,4000);
+		fitter.Config().ParSettings(0).SetLimits(-500,500);
+		fitter.Config().ParSettings(1).SetLimits(-500,500);
 
-   	  bool ok2 = fitter.FitFCN();
-   	  
-   		if(!ok2)
-   		{
-   			cout<<"fialed"<<endl;
-   			cout<<firstpt.x()<<','<<firstpt.y()<<','<<firstpt.z()<<endl;
-   			cout<<secondpt.x()<<','<<secondpt.y()<<','<<secondpt.z()<<endl;
-   			exit(1);
-   		}
+		bool ok2 = fitter.FitFCN();
+
+		if(!ok2)
+		{
+			cout<<"fialed"<<endl;
+			cout<<firstpt.x()<<','<<firstpt.y()<<','<<firstpt.z()<<endl;
+			cout<<secondpt.x()<<','<<secondpt.y()<<','<<secondpt.z()<<endl;
+			exit(1);
+		}
 
    	}
 
    	const ROOT::Fit::FitResult & result = fitter.Result();
 
-   	std::cout << "Total final distance square " << result.MinFcnValue() << std::endl;
-   	if(result.MinFcnValue() > 12)
+   	std::cout << "final chi2 =  " << result.MinFcnValue() << std::endl;
+   	/*if(result.MinFcnValue() > 3)
    	{
    		cout<<"error, high min val"<<endl;
    		exit(1);
-   	}
+   	}*/
    	result.Print(std::cout);
+   	cout<<endl;
+   	cout<<"par errors"<<endl;
+   	for(int j = 0; j < 6; ++j)
+   		cout<<result.ParError(j)<<endl;
+   	cout<<endl<<endl;
    	const double * parFit = result.GetParams();
 
    	if(num == 1)

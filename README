@@ -53,6 +53,8 @@ posXYZ5,0,0,50
 The variables can be in any order, but must all appear before the start of 
 the position variables. 
 
+You can only have a maximum of 10 modules
+
 ALL UNITS ARE IN CENTEMETERS. 
 
 You must ENSURE THAT THE LONGEST DIMENSION FOR THE STRIP IS THE X DIMENSION. 

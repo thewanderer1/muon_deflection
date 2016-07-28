@@ -53,15 +53,14 @@ struct Event{
 };
 
 
-struct LineFit{
+class LineFit{
 	TGraph2D * fGraph;
 	bool first;
-
-   LineFit(TGraph2D * g) : fGraph(g), first(true) {}
-
    const double* parameters;
 
    // implementation of the function to be minimized
+public:
+   LineFit(TGraph2D * g) : fGraph(g), first(true) {}
    double operator() (const double * par) {
    	  parameters = par;
       assert(fGraph    != 0);
@@ -69,10 +68,10 @@ struct LineFit{
       double * y = fGraph->GetY();
       double * z = fGraph->GetZ();
       int npoints = fGraph->GetN();
-      double sum = 0;
+      double chi2 = 0;
       for (int i  = 0; i < npoints; ++i) {
-         double d = distance2(x[i],y[i],z[i]);
-         sum += d;
+         double d = delta2(x[i],y[i],z[i]);
+         chi2 += d;
 #ifdef DEBUG
          if (first) std::cout << "point " << i << "\t"
             << x[i] << "\t"
@@ -82,19 +81,23 @@ struct LineFit{
 #endif
       }
       if (first)
-         std::cout << "Total Initial distance square = " << sum << std::endl;
+         std::cout << "first chi2 val = " << chi2 << std::endl;
       first = false;
-      return sum;
+      return chi2;
    }
-
-   double distance2(double x,double y,double z)
+private:
+   double delta2(double x,double y,double z)
    {
 
    		XYZVector xp(x,y,z);
    	   XYZVector x0(parameters[0],parameters[1],parameters[2]);
    	   XYZVector x1(parameters[3], parameters[4],parameters[5]);
    	   XYZVector u = x1.Unit();
-   	   double d2 = ((xp-x0).Cross(u)).Mag2();
+   	   XYZVector distvect = ((xp-x0).Cross(u));
+         double errorx = 0.5;
+         double errory = 0.5;
+         double errorz = 1;
+         double d2 = distvect.x()*distvect.x()/(errorx*errorx) + distvect.y()*distvect.y()/(errory*errory) + distvect.z()*distvect.z()/(errorz*errorz); // implement a legit chisquare here
    	   return d2;
    }
 };
