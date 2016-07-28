@@ -1,0 +1,13 @@
+numEvents,35000
+stripXYZ,500,1,1
+numModules,10
+posXYZ1,0,0,300
+posXYZ2,0,0,250
+posXYZ3,0,0,200
+posXYZ4,0,0,150
+posXYZ5,0,0,100
+posXYZ6,0,0,-300
+posXYZ7,0,0,-250
+posXYZ8,0,0,-200
+posXYZ9,0,0,-150
+posXYZ10,0,0,-100

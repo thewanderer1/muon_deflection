@@ -1,0 +1,7 @@
+#rectangle,G4_AIR,500,500,190,0,0,0
+#rectangle,G4_U,500,500,5,0,0,0
+#rectangle,G4_Pb,500,500,5,0,0,0
+#rectangle,G4_Fe,500,500,5,0,0,0
+#rectangle,G4_Al,500,500,5,0,0,0
+rectangle,G4_U,100,200,5,0,0,-50
+rectangle,G4_Al,200,100,5,0,0,70
